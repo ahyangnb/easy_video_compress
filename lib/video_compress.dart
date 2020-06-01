@@ -3,12 +3,11 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 
 class VideoCompress {
-//  static const MethodChannel _channel = const MethodChannel('video_compress');
-
   factory VideoCompress() {
     if (_instance == null) {
       final MethodChannel methodChannel = const MethodChannel('video_compress');
-      final EventChannel eventChannel = const EventChannel('video_compress_event');
+      final EventChannel eventChannel =
+          const EventChannel('video_compress_event');
       _instance = new VideoCompress.private(methodChannel, eventChannel);
     }
     return _instance;
@@ -33,7 +32,7 @@ class VideoCompress {
     return _listener;
   }
 
-   Future<String> get platformVersion async {
+  Future<String> get platformVersion async {
     final String version = await _channel.invokeMethod('getPlatformVersion');
     return version;
   }
@@ -41,7 +40,7 @@ class VideoCompress {
   /*
   * 视频压缩
   * */
-   Future<String> videoCompress(path) {
+  Future<String> videoCompress(path) {
     return _channel.invokeMethod('videoCompress', {"path": path});
   }
 
