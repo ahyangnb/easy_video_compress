@@ -13,7 +13,7 @@ class VideoCompress {
   /*
   * 视频压缩
   * */
-  static videoCompress(path) {
-    _channel.invokeMethod('videoCompress', {"path": path});
+  static Future<String> videoCompress(path) {
+    return _channel.invokeMethod('videoCompress', {"path": path});
   }
 }

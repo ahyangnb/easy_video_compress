@@ -15,13 +15,30 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  String _platformVersion = 'Unknown';
+  String _chargingStatus = 'Unknown';
+
+//  static const EventChannel eventChannel =
+//  const EventChannel('samples.flutter.io/charging');
 
   @override
   void initState() {
     super.initState();
     initPlatformState();
+//    eventChannel.receiveBroadcastStream().listen(_onEvent, onError: _onError);
   }
+
+//  void _onEvent(Object event) {
+//    setState(() {
+//      _chargingStatus =
+//      "Battery status: ${event == 'charging' ? '' : 'dis'}charging.";
+//    });
+//  }
+//
+//  void _onError(Object error) {
+//    setState(() {
+//      _chargingStatus = 'Battery status: unknown.';
+//    });
+//  }
 
   // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> initPlatformState() async {
@@ -39,14 +56,15 @@ class _MyAppState extends State<MyApp> {
     if (!mounted) return;
 
     setState(() {
-      _platformVersion = platformVersion;
+      _chargingStatus = platformVersion;
     });
   }
 
   selectVideo() async {
     File video = await ImagePicker.pickVideo(source: ImageSource.gallery);
     if (video == null) return;
-    VideoCompress.videoCompress(video.path);
+    String result = await VideoCompress.videoCompress(video.path);
+    print('压缩结果::$result');
   }
 
   @override
@@ -63,7 +81,7 @@ class _MyAppState extends State<MyApp> {
           ],
         ),
         body: Center(
-          child: Text('Running on: $_platformVersion\n'),
+          child: Text('Running on: $_chargingStatus\n'),
         ),
       ),
     );

@@ -1,11 +1,15 @@
 package com.video.compress.video_compress;
 
 import android.annotation.TargetApi;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.nfc.Tag;
+import android.os.BatteryManager;
 import android.os.Build;
+import android.os.Environment;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
@@ -16,11 +20,14 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.logging.StreamHandler;
 
 import androidx.annotation.NonNull;
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.embedding.engine.plugins.activity.ActivityAware;
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding;
+import io.flutter.plugin.common.BinaryMessenger;
+import io.flutter.plugin.common.EventChannel;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
@@ -56,6 +63,7 @@ public class VideoCompressPlugin implements FlutterPlugin, MethodCallHandler, Ac
         } else if (call.method.equals("videoCompress")) {
             String path = call.argument("path");
             handleVideo(path);
+            Toast.makeText(ctx, "处理视频完毕", Toast.LENGTH_LONG).show();
             result.success("已经在处理视频啦");
         } else {
             result.notImplemented();
@@ -64,8 +72,8 @@ public class VideoCompressPlugin implements FlutterPlugin, MethodCallHandler, Ac
 
     public void handleVideo(String srcPath) {
         String destPath;
-//        String srcPath = "";
-        destPath = File.separator + "out_VID_" + new SimpleDateFormat("yyyyMMdd_HHmmss", getLocale()).format(new Date()) + ".mp4";
+        String outputDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath();
+        destPath = outputDir + File.separator + "out_VID_" + new SimpleDateFormat("yyyyMMdd_HHmmss", getLocale()).format(new Date()) + ".mp4";
 
         VideoCompress.compressVideoLow(srcPath, destPath, new VideoCompress.CompressListener() {
             @Override
@@ -75,7 +83,7 @@ public class VideoCompressPlugin implements FlutterPlugin, MethodCallHandler, Ac
 //                        + "Start at: " + new SimpleDateFormat("HH:mm:ss", getLocale()).format(new Date()));
 //                pb_compress.setVisibility(View.VISIBLE);
                 startTime = System.currentTimeMillis();
-                Util.writeFile(ctx, "Start at: " + new SimpleDateFormat("HH:mm:ss", getLocale()).format(new Date()) + "\n");
+//                Util.writeFile(ctx, "Start at: " + new SimpleDateFormat("HH:mm:ss", getLocale()).format(new Date()) + "\n");
             }
 
             @Override
@@ -86,9 +94,9 @@ public class VideoCompressPlugin implements FlutterPlugin, MethodCallHandler, Ac
 //                        + "End at: " + new SimpleDateFormat("HH:mm:ss", getLocale()).format(new Date()));
 //                pb_compress.setVisibility(View.INVISIBLE);
                 endTime = System.currentTimeMillis();
-                Util.writeFile(ctx, "End at: " + new SimpleDateFormat("HH:mm:ss", getLocale()).format(new Date()) + "\n");
-                Util.writeFile(ctx, "Total: " + ((endTime - startTime) / 1000) + "s" + "\n");
-                Util.writeFile(ctx);
+//                Util.writeFile(ctx, "End at: " + new SimpleDateFormat("HH:mm:ss", getLocale()).format(new Date()) + "\n");
+//                Util.writeFile(ctx, "Total: " + ((endTime - startTime) / 1000) + "s" + "\n");
+//                Util.writeFile(ctx);
 
 //                startActivity(new Intent(ctx, VideoActivity.class).putExtra("vvVideo", destPath));
             }
@@ -98,7 +106,7 @@ public class VideoCompressPlugin implements FlutterPlugin, MethodCallHandler, Ac
 //                tv_indicator.setText("Compress Failed!");
 //                pb_compress.setVisibility(View.INVISIBLE);
                 endTime = System.currentTimeMillis();
-                Util.writeFile(ctx, "Failed Compress!!!" + new SimpleDateFormat("HH:mm:ss", getLocale()).format(new Date()));
+//                Util.writeFile(ctx, "Failed Compress!!!" + new SimpleDateFormat("HH:mm:ss", getLocale()).format(new Date()));
             }
 
             @Override
