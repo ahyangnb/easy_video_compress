@@ -24,6 +24,11 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     initPlatformState();
+    print('Flutter:::aaaaaa');
+
+    VideoCompress().onMessage.listen((dynamic onData) {
+      print('Flutter:::${onData.toString()}');
+    });
 //    eventChannel.receiveBroadcastStream().listen(_onEvent, onError: _onError);
   }
 
@@ -45,7 +50,7 @@ class _MyAppState extends State<MyApp> {
     String platformVersion;
     // Platform messages may fail, so we use a try/catch PlatformException.
     try {
-      platformVersion = await VideoCompress.platformVersion;
+      platformVersion = await VideoCompress().platformVersion;
     } on PlatformException {
       platformVersion = 'Failed to get platform version.';
     }
@@ -63,7 +68,7 @@ class _MyAppState extends State<MyApp> {
   selectVideo() async {
     File video = await ImagePicker.pickVideo(source: ImageSource.gallery);
     if (video == null) return;
-    String result = await VideoCompress.videoCompress(video.path);
+    String result = await VideoCompress().videoCompress(video.path);
     print('压缩结果::$result');
   }
 

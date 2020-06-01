@@ -41,14 +41,20 @@ public class VideoCompressPlugin implements FlutterPlugin, MethodCallHandler, Ac
 
     String TAG = "VideoCompress";
     static Context ctx;
+    private static FlutterState flutterState;
 
-    private long startTime, endTime;
+    private QueuingEventSink eventSink = new QueuingEventSink();
+
+    public VideoCompressPlugin() {
+    }
 
     @Override
     public void onAttachedToEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
         final MethodChannel channel = new MethodChannel(flutterPluginBinding.getFlutterEngine().getDartExecutor(), "video_compress");
-
         channel.setMethodCallHandler(new VideoCompressPlugin());
+        flutterState =
+                new FlutterState(
+                        flutterPluginBinding.getBinaryMessenger());
     }
 
     public static void registerWith(Registrar registrar) {
@@ -58,68 +64,84 @@ public class VideoCompressPlugin implements FlutterPlugin, MethodCallHandler, Ac
 
     @Override
     public void onMethodCall(@NonNull MethodCall call, @NonNull Result result) {
+
+        final EventChannel eventChannel =
+                new EventChannel(flutterState.binaryMessenger, "video_compress_event");
+        eventChannel.setStreamHandler(new EventChannel.StreamHandler() {
+            @Override
+            public void onListen(Object arguments, EventChannel.EventSink events) {
+                eventSink.setDelegate(events);
+            }
+
+            @Override
+            public void onCancel(Object arguments) {
+                eventSink.setDelegate(null);
+            }
+        });
+
         if (call.method.equals("getPlatformVersion")) {
+            eventSink.success("getPlatformVersion");
             result.success("Android " + android.os.Build.VERSION.RELEASE);
         } else if (call.method.equals("videoCompress")) {
             String path = call.argument("path");
-            handleVideo(path);
-            Toast.makeText(ctx, "处理视频完毕", Toast.LENGTH_LONG).show();
-            result.success("已经在处理视频啦");
-        } else {
-            result.notImplemented();
-        }
-    }
 
-    public void handleVideo(String srcPath) {
-        String destPath;
-        String outputDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath();
-        destPath = outputDir + File.separator + "out_VID_" + new SimpleDateFormat("yyyyMMdd_HHmmss", getLocale()).format(new Date()) + ".mp4";
+            String destPath;
+            String outputDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath();
+            destPath = outputDir + File.separator + "out_VID_" + new SimpleDateFormat("yyyyMMdd_HHmmss", getLocale()).format(new Date()) + ".mp4";
 
-        VideoCompress.compressVideoLow(srcPath, destPath, new VideoCompress.CompressListener() {
-            @Override
-            public void onStart() {
+            VideoCompress.compressVideoLow(path, destPath, new VideoCompress.CompressListener() {
+                @Override
+                public void onStart() {
+                    eventSink.success("start");
 
 //                tv_indicator.setText("Compressing..." + "\n"
 //                        + "Start at: " + new SimpleDateFormat("HH:mm:ss", getLocale()).format(new Date()));
 //                pb_compress.setVisibility(View.VISIBLE);
-                startTime = System.currentTimeMillis();
+//                startTime = System.currentTimeMillis();
 //                Util.writeFile(ctx, "Start at: " + new SimpleDateFormat("HH:mm:ss", getLocale()).format(new Date()) + "\n");
-            }
+                }
 
-            @Override
-            public void onSuccess() {
+                @Override
+                public void onSuccess() {
+                    eventSink.success("onSuccess");
+
 //                String previous = tv_indicator.getText().toString();
 //                tv_indicator.setText(previous + "\n"
 //                        + "Compress Success!" + "\n"
 //                        + "End at: " + new SimpleDateFormat("HH:mm:ss", getLocale()).format(new Date()));
 //                pb_compress.setVisibility(View.INVISIBLE);
-                endTime = System.currentTimeMillis();
+//                endTime = System.currentTimeMillis();
 //                Util.writeFile(ctx, "End at: " + new SimpleDateFormat("HH:mm:ss", getLocale()).format(new Date()) + "\n");
 //                Util.writeFile(ctx, "Total: " + ((endTime - startTime) / 1000) + "s" + "\n");
 //                Util.writeFile(ctx);
+                }
 
-//                startActivity(new Intent(ctx, VideoActivity.class).putExtra("vvVideo", destPath));
-            }
-
-            @Override
-            public void onFail() {
+                @Override
+                public void onFail() {
+                    eventSink.error("error", "Compress ", "Failed!");
 //                tv_indicator.setText("Compress Failed!");
 //                pb_compress.setVisibility(View.INVISIBLE);
-                endTime = System.currentTimeMillis();
+//                endTime = System.currentTimeMillis();
 //                Util.writeFile(ctx, "Failed Compress!!!" + new SimpleDateFormat("HH:mm:ss", getLocale()).format(new Date()));
-            }
+                }
 
-            @Override
-            public void onProgress(float percent) {
-                Log.d(TAG, "压缩进度：" + percent + "%");
+                @Override
+                public void onProgress(float percent) {
+                    eventSink.success(percent);
+                    Log.d(TAG, "压缩进度：" + percent + "%");
 //                tv_progress.setText(String.valueOf(percent) + "%");
-            }
-        });
+                }
+            });
+            result.success("视频处理中");
+        } else {
+            result.notImplemented();
+        }
     }
+
 
     private Locale getLocale() {
         Configuration config = ctx.getApplicationContext().getResources().getConfiguration();
-        Locale sysLocale = null;
+        Locale sysLocale;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             sysLocale = getSystemLocale(config);
         } else {
@@ -163,4 +185,14 @@ public class VideoCompressPlugin implements FlutterPlugin, MethodCallHandler, Ac
     public void onDetachedFromActivity() {
 
     }
+
+    private static final class FlutterState {
+        private final BinaryMessenger binaryMessenger;
+
+        FlutterState(
+                BinaryMessenger messenger) {
+            this.binaryMessenger = messenger;
+        }
+    }
+
 }
