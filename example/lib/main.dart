@@ -43,7 +43,7 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
-  selectVideo()async {
+  selectVideo() async {
     File video = await ImagePicker.pickVideo(source: ImageSource.gallery);
     if (video == null) return;
     VideoCompress.videoCompress(video.path);
@@ -57,7 +57,7 @@ class _MyAppState extends State<MyApp> {
           title: const Text('Plugin example app'),
           actions: <Widget>[
             new FlatButton(
-              onPressed: () {},
+              onPressed: () => selectVideo(),
               child: new Text('选择'),
             )
           ],
