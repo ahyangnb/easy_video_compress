@@ -1,20 +1,11 @@
 package com.video.compress.video_compress;
 
 import android.Manifest;
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.content.res.Configuration;
-import android.os.Build;
-import android.os.Environment;
 import android.util.Log;
 
 import com.video.compress.video_compress.plugin.VideoCompress;
-
-import java.io.File;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
@@ -95,9 +86,6 @@ public class VideoCompressPlugin implements FlutterPlugin, MethodCallHandler, Ac
     }
 
     private boolean handleVideo(String path, String toPath) {
-
-//        String outputDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath();
-//        destPath = outputDir + File.separator + "out_VID_" + new SimpleDateFormat("yyyyMMdd_HHmmss", getLocale()).format(new Date()) + ".mp4";
         VideoCompress.compressVideoLow(path, toPath, new VideoCompress.CompressListener() {
             @Override
             public void onStart() {
