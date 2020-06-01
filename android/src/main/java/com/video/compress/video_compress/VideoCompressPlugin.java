@@ -80,7 +80,6 @@ public class VideoCompressPlugin implements FlutterPlugin, MethodCallHandler, Ac
         });
 
         if (call.method.equals("getPlatformVersion")) {
-            eventSink.success("getPlatformVersion");
             result.success("Android " + android.os.Build.VERSION.RELEASE);
         } else if (call.method.equals("videoCompress")) {
             String path = call.argument("path");
