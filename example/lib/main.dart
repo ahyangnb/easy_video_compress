@@ -25,6 +25,9 @@ class _MyAppState extends State<MyApp> {
 
     VideoCompress().onMessage.listen((dynamic onData) {
       print('Flutter:::${onData.toString()}');
+      setState(() {
+        _chargingStatus = onData.toString();
+      });
     });
   }
 
@@ -51,7 +54,7 @@ class _MyAppState extends State<MyApp> {
   selectVideo() async {
     File video = await ImagePicker.pickVideo(source: ImageSource.gallery);
     if (video == null) return;
-    String result = await VideoCompress().videoCompress(video.path);
+    bool result = await VideoCompress().videoCompress(video.path, '目标路径');
     print('压缩结果::$result');
   }
 

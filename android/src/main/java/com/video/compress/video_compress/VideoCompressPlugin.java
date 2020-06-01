@@ -87,18 +87,18 @@ public class VideoCompressPlugin implements FlutterPlugin, MethodCallHandler, Ac
                 result.error(TAG, "权限问题", "权限未开启");
             }
             String path = call.argument("path");
-            result.success(handleVideo(path));
+            String toPath = call.argument("toPath");
+            result.success(handleVideo(path, toPath));
         } else {
             result.notImplemented();
         }
     }
 
-    private String handleVideo(String path) {
+    private boolean handleVideo(String path, String toPath) {
 
-        String destPath;
-        String outputDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath();
-        destPath = outputDir + File.separator + "out_VID_" + new SimpleDateFormat("yyyyMMdd_HHmmss", getLocale()).format(new Date()) + ".mp4";
-        VideoCompress.compressVideoLow(path, destPath, new VideoCompress.CompressListener() {
+//        String outputDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath();
+//        destPath = outputDir + File.separator + "out_VID_" + new SimpleDateFormat("yyyyMMdd_HHmmss", getLocale()).format(new Date()) + ".mp4";
+        VideoCompress.compressVideoLow(path, toPath, new VideoCompress.CompressListener() {
             @Override
             public void onStart() {
                 eventSinkOK.success("start");
@@ -117,32 +117,9 @@ public class VideoCompressPlugin implements FlutterPlugin, MethodCallHandler, Ac
             @Override
             public void onProgress(float percent) {
                 eventSinkOK.success(percent);
-                Log.d(TAG, "压缩进度：" + percent + "%");
             }
         });
-        return destPath;
-    }
-
-    private Locale getLocale() {
-        Configuration config = ctx.getApplicationContext().getResources().getConfiguration();
-        Locale sysLocale = null;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            sysLocale = getSystemLocale(config);
-        } else {
-            sysLocale = getSystemLocaleLegacy(config);
-        }
-
-        return sysLocale;
-    }
-
-    @SuppressWarnings("deprecation")
-    public static Locale getSystemLocaleLegacy(Configuration config) {
-        return config.locale;
-    }
-
-    @TargetApi(Build.VERSION_CODES.N)
-    public static Locale getSystemLocale(Configuration config) {
-        return config.getLocales().get(0);
+        return true;
     }
 
     @Override

@@ -40,8 +40,11 @@ class VideoCompress {
   /*
   * 视频压缩
   * */
-  Future<String> videoCompress(path) {
-    return _channel.invokeMethod('videoCompress', {"path": path});
+  Future<bool> videoCompress(String path, String toPath) {
+    return _channel.invokeMethod(
+      'videoCompress',
+      {"path": path, "toPath": toPath},
+    );
   }
 
   dynamic _parseBatteryState(event) {
