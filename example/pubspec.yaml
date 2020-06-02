@@ -12,13 +12,13 @@ dependencies:
   #图片选择器
   image_picker: ^0.6.1
 #  path_provider: any
+  video_compress:
+    path: ../
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
 
-  video_compress:
-    path: ../
 
 flutter:
 
