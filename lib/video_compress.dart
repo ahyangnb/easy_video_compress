@@ -37,17 +37,22 @@ class VideoCompress {
     return version;
   }
 
+  Future<String> get getPath async {
+    final String path = await _channel.invokeMethod('getPath');
+    return path;
+  }
+
   /*
   * 视频压缩
   * */
-  Future<bool> videoCompress(String path, String toPath) {
+  Future<bool> videoCompress(String path, String toPath) async {
     try {
-      return _channel.invokeMethod(
+      return await _channel.invokeMethod(
         'videoCompress',
-        {"path": path, "toPath": toPath},
+        {"path": path, "toPath": await getPath + toPath},
       );
-    } catch (e) {
-      return Future.value(false);
+    } on PlatformException  {
+      return false;
     }
   }
 

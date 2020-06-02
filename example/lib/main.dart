@@ -5,6 +5,8 @@ import 'dart:async';
 
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
+
+//import 'package:path_provider/path_provider.dart';
 import 'package:video_compress/video_compress.dart';
 
 void main() => runApp(MyApp());
@@ -54,7 +56,13 @@ class _MyAppState extends State<MyApp> {
   selectVideo() async {
     File video = await ImagePicker.pickVideo(source: ImageSource.gallery);
     if (video == null) return;
-    bool result = await VideoCompress().videoCompress(video.path, '目标路径');
+
+//    final tempDir = await getDownloadsDirectory();
+    DateTime d = DateTime.now(); //${tempDir.path}
+    String dateStr =
+        'video_${d.year}_${d.month}_${d.day}_${d.hour}_${d.minute}_${d.second}.mp4';
+    print('完整路径：：$dateStr');
+    bool result = await VideoCompress().videoCompress(video.path, '$dateStr');
     print('压缩结果::$result');
   }
 

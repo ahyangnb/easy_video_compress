@@ -1,13 +1,24 @@
 package com.video.compress.video_compress;
 
 import android.Manifest;
+import android.annotation.TargetApi;
+import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
+import android.os.Build;
+import android.os.Environment;
 import android.util.Log;
 
 import com.video.compress.video_compress.plugin.VideoCompress;
 
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
 import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.embedding.engine.plugins.activity.ActivityAware;
@@ -27,6 +38,7 @@ public class VideoCompressPlugin implements FlutterPlugin, MethodCallHandler, Ac
 
     String TAG = "VideoCompress";
     static Context ctx;
+    static Activity activity;
     //    private static EventChannel.EventSink eventSink;
     private static FlutterState flutterState;
 
@@ -73,12 +85,21 @@ public class VideoCompressPlugin implements FlutterPlugin, MethodCallHandler, Ac
         if (call.method.equals("getPlatformVersion")) {
             eventSinkOK.success("getPlatformVersion");
             result.success("Android " + android.os.Build.VERSION.RELEASE);
+        } else if (call.method.equals("getPath")) {
+
+            String destPath;
+            String outputDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath();
+            destPath = outputDir + File.separator + "out_VID_";
+
+            result.success(destPath);//+ new SimpleDateFormat("yyyyMMdd_HHmmss", getLocale()).format(new Date()) + ".mp4"
         } else if (call.method.equals("videoCompress")) {
             if (lacksPermissions(ctx, mPermissions)) {
                 result.error(TAG, "权限问题", "权限未开启");
+                return;
             }
             String path = call.argument("path");
             String toPath = call.argument("toPath");
+            Log.d(TAG, "android接受的完整路径::" + toPath);
             result.success(handleVideo(path, toPath));
         } else {
             result.notImplemented();
@@ -117,6 +138,7 @@ public class VideoCompressPlugin implements FlutterPlugin, MethodCallHandler, Ac
 
     @Override
     public void onAttachedToActivity(ActivityPluginBinding binding) {
+        activity = binding.getActivity();
         ctx = binding.getActivity();
     }
 
@@ -128,6 +150,7 @@ public class VideoCompressPlugin implements FlutterPlugin, MethodCallHandler, Ac
     @Override
     public void onReattachedToActivityForConfigChanges(ActivityPluginBinding binding) {
         ctx = binding.getActivity();
+        activity = binding.getActivity();
     }
 
     @Override
@@ -142,6 +165,29 @@ public class VideoCompressPlugin implements FlutterPlugin, MethodCallHandler, Ac
                 BinaryMessenger messenger) {
             this.binaryMessenger = messenger;
         }
+    }
+
+
+    private Locale getLocale() {
+        Configuration config = ctx.getApplicationContext().getResources().getConfiguration();
+        Locale sysLocale;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            sysLocale = getSystemLocale(config);
+        } else {
+            sysLocale = getSystemLocaleLegacy(config);
+        }
+
+        return sysLocale;
+    }
+
+    @SuppressWarnings("deprecation")
+    public static Locale getSystemLocaleLegacy(Configuration config) {
+        return config.locale;
+    }
+
+    @TargetApi(Build.VERSION_CODES.N)
+    public static Locale getSystemLocale(Configuration config) {
+        return config.getLocales().get(0);
     }
 
     /**
@@ -160,6 +206,7 @@ public class VideoCompressPlugin implements FlutterPlugin, MethodCallHandler, Ac
     private boolean lacksPermissions(Context mContexts, String[] mPermissions) {
         for (String permission : mPermissions) {
             if (lacksPermission(mContexts, permission)) {
+                ActivityCompat.requestPermissions(activity, new String[]{permission}, 1);
                 Log.e("TAG", "-------没有开启权限");
                 return true;
             }
