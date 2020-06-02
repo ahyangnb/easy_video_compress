@@ -49,9 +49,9 @@ class VideoCompress {
     try {
       return await _channel.invokeMethod(
         'videoCompress',
-        {"path": path, "toPath": await getPath + toPath},
+        {"path": path, "toPath": toPath},
       );
-    } on PlatformException  {
+    } on PlatformException {
       return false;
     }
   }

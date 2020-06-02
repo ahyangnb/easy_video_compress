@@ -57,12 +57,13 @@ class _MyAppState extends State<MyApp> {
     File video = await ImagePicker.pickVideo(source: ImageSource.gallery);
     if (video == null) return;
 
-//    final tempDir = await getDownloadsDirectory();
-    DateTime d = DateTime.now(); //${tempDir.path}
+    DateTime d = DateTime.now();
+    String download = await VideoCompress().getPath;
     String dateStr =
         'video_${d.year}_${d.month}_${d.day}_${d.hour}_${d.minute}_${d.second}.mp4';
-    print('完整路径：：$dateStr');
-    bool result = await VideoCompress().videoCompress(video.path, '$dateStr');
+    print('完整路径：：$download$dateStr');
+    bool result =
+        await VideoCompress().videoCompress(video.path, '$download$dateStr');
     print('压缩结果::$result');
   }
 
