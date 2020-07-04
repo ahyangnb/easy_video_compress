@@ -1,8 +1,8 @@
 name: easy_video_compress
 description: A new flutter plugin project.
 version: 0.0.1
-author:
-homepage:
+#author:
+homepage: https://github.com/ahyangnb/easy_video_compress
 
 environment:
   sdk: ">=2.7.0 <3.0.0"
