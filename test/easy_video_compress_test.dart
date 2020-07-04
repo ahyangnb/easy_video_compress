@@ -18,6 +18,6 @@ void main() {
   });
 
   test('getPlatformVersion', () async {
-    expect(await EasyVideoCompress.platformVersion, '42');
+    expect(await EasyVideoCompress().platformVersion, '42');
   });
 }
