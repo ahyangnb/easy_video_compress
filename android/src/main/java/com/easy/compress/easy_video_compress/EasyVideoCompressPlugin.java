@@ -91,7 +91,7 @@ public class EasyVideoCompressPlugin implements FlutterPlugin, MethodCallHandler
             destPath = outputDir + File.separator + "out_VID_";
 
             result.success(destPath);//+ new SimpleDateFormat("yyyyMMdd_HHmmss", getLocale()).format(new Date()) + ".mp4"
-        } else if (call.method.equals("easeVideoCompress")) {
+        } else if (call.method.equals("easyVideoCompress")) {
             if (lacksPermissions(ctx, mPermissions)) {
                 result.error(TAG, "权限问题", "权限未开启");
                 return;

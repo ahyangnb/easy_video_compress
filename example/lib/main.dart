@@ -7,7 +7,12 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 
-void main() => runApp(MyApp());
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  EasyVideoCompress().platformVersion;
+  runApp(MyApp());
+}
 
 class MyApp extends StatefulWidget {
   @override
@@ -60,8 +65,8 @@ class _MyAppState extends State<MyApp> {
     String dateStr =
         'video_${d.year}_${d.month}_${d.day}_${d.hour}_${d.minute}_${d.second}.mp4';
     print('完整路径：：$download$dateStr');
-    bool result =
-    await EasyVideoCompress().easyVideoCompress(video.path, '$download$dateStr');
+    bool result = await EasyVideoCompress()
+        .easyVideoCompress(video.path, '$download$dateStr');
     print('压缩结果::$result');
   }
 
